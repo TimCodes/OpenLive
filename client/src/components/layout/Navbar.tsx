@@ -2,8 +2,15 @@ import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Crown, Bell, User } from 'lucide-react';
+import { useApp } from '@/context/AppContext';
 
 export function Navbar() {
+  const { isLoggedIn, setIsLoggedIn } = useApp();
+
+  const handleLoginClick = () => {
+    setIsLoggedIn(!isLoggedIn);
+  };
+
   return (
     <nav className="flex items-center h-14 px-4 border-b border-zinc-800 bg-zinc-900">
       <div className="flex items-center gap-8">
@@ -37,6 +44,12 @@ export function Navbar() {
         </Button>
         <Button variant="ghost" size="icon">
           <User className="h-5 w-5" />
+        </Button>
+        <Button 
+          variant={isLoggedIn ? "destructive" : "default"}
+          onClick={handleLoginClick}
+        >
+          {isLoggedIn ? "Log Out" : "Log In"}
         </Button>
       </div>
     </nav>

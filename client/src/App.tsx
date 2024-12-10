@@ -5,6 +5,7 @@ import { Home } from '@/pages/Home';
 import { Stream } from '@/pages/Stream';
 import { Categories } from '@/pages/Categories';
 import { AppProvider } from '@/context/AppContext';
+import { Toaster } from '@/components/ui/toaster';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route>404 Page Not Found</Route>
           </Switch>
         </div>
+        <Toaster />
       </div>
     </AppProvider>
   );
