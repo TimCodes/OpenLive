@@ -33,16 +33,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleSubscribe = (streamId: string) => {
-    if (!isLoggedIn) return;
-    setSubscribedStreams(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(streamId)) {
-        newSet.delete(streamId);
-      } else {
-        newSet.add(streamId);
-      }
-      return newSet;
-    });
+    try {
+      if (!isLoggedIn) return;
+      setSubscribedStreams(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(streamId)) {
+          newSet.delete(streamId);
+        } else {
+          newSet.add(streamId);
+        }
+        return newSet;
+      });
+    } catch (error) {
+      console.error('Error toggling subscribe:', error);
+    }
   };
 
   return (

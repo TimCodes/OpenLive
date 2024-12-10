@@ -17,8 +17,9 @@ export function StreamPlayer({ stream }: StreamPlayerProps) {
   const playerRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { isLoggedIn, followedStreams, subscribedStreams, toggleFollow, toggleSubscribe } = useApp();
+  const app = useApp();
   const { toast } = useToast();
+  const { isLoggedIn, followedStreams, subscribedStreams, toggleFollow, toggleSubscribe } = app;
 
   useEffect(() => {
     if (!videoElementRef.current) return;
