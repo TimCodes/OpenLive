@@ -59,20 +59,21 @@ export function StreamPlayer({ stream }: StreamPlayerProps) {
 
   return (
     <div className="w-full bg-black">
-      <div className="aspect-video relative">
-        <div data-vjs-player className="absolute inset-0">
+      <div className="aspect-video relative bg-black">
+        <div data-vjs-player className="absolute inset-0 z-[1]">
           <video
             ref={videoElementRef}
-            className="video-js vjs-big-play-centered vjs-fluid"
+            className="video-js vjs-big-play-centered"
+            style={{ position: 'absolute', width: '100%', height: '100%' }}
           />
         </div>
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[2]">
             <div className="text-white">Loading stream...</div>
           </div>
         )}
         {error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[2]">
             <div className="text-red-500">{error}</div>
           </div>
         )}
