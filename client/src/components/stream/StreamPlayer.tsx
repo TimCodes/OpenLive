@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
+import './VideoPlayer.css';
 import { Stream } from '@/lib/mock-data';
 
 interface StreamPlayerProps {
@@ -10,25 +11,42 @@ interface StreamPlayerProps {
 export function StreamPlayer({ stream }: StreamPlayerProps) {
   const videoElementRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!videoElementRef.current) return;
 
     const videoElement = videoElementRef.current;
 
-    playerRef.current = videojs(videoElement, {
-      autoplay: false,
+    const player = videojs(videoElement, {
+      autoplay: true,
       controls: true,
       responsive: true,
       fluid: true,
+      preload: 'auto',
+      html5: {
+        vhs: {
+          overrideNative: true
+        }
+      },
       sources: [{
-        // Use a reliable video source for demonstration
-        src: 'https://vjs.zencdn.net/v/oceans.mp4',
-        type: 'video/mp4'
+        src: 'https://d2zihajmogu5jn.cloudfront.net/bipbop-advanced/bipbop_16x9_variant.m3u8',
+        type: 'application/x-mpegURL'
       }],
       poster: stream.thumbnailUrl
-    }, () => {
+    });
+
+    playerRef.current = player;
+
+    player.ready(() => {
       console.log('Player is ready');
+      setIsLoading(false);
+    });
+
+    player.on('error', () => {
+      setError('Failed to load video stream');
+      setIsLoading(false);
     });
 
     return () => {
@@ -37,15 +55,27 @@ export function StreamPlayer({ stream }: StreamPlayerProps) {
         playerRef.current = null;
       }
     };
-  }, [stream.id]); // Only reinitialize if stream ID changes
+  }, [stream.id]);
 
   return (
     <div className="w-full bg-black">
-      <div data-vjs-player>
-        <video
-          ref={videoElementRef}
-          className="video-js vjs-big-play-centered vjs-theme-twitch"
-        />
+      <div className="relative">
+        <div data-vjs-player>
+          <video
+            ref={videoElementRef}
+            className="video-js vjs-big-play-centered vjs-theme-twitch"
+          />
+        </div>
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="text-white">Loading stream...</div>
+          </div>
+        )}
+        {error && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="text-red-500">{error}</div>
+          </div>
+        )}
       </div>
       <div className="p-4">
         <h1 className="text-2xl font-bold">{stream.title}</h1>
