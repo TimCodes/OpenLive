@@ -1,15 +1,32 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Crown, Bell, User } from 'lucide-react';
 import { useApp } from '@/context/AppContext';
+import { Stream, mockStreams } from '@/lib/mock-data';
 
 export function Navbar() {
   const { isLoggedIn, setIsLoggedIn } = useApp();
+  const [searchResults, setSearchResults] = useState<Stream[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
 
   const handleLoginClick = () => {
     setIsLoggedIn(!isLoggedIn);
   };
+
+  // Close search results when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showResults) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showResults]);
 
   return (
     <nav className="flex items-center h-14 px-4 border-b border-zinc-800 bg-zinc-900">
@@ -31,7 +48,41 @@ export function Navbar() {
           <Input
             placeholder="Search"
             className="w-full pl-10 bg-zinc-800 border-zinc-700"
+            onChange={(e) => {
+              const searchTerm = e.target.value.toLowerCase();
+              const filteredStreams = mockStreams.filter(
+                stream => 
+                  stream.title.toLowerCase().includes(searchTerm) ||
+                  stream.streamer.toLowerCase().includes(searchTerm) ||
+                  stream.game.toLowerCase().includes(searchTerm)
+              );
+              setSearchResults(filteredStreams);
+              setIsSearching(searchTerm.length > 0);
+            }}
+            onFocus={() => setShowResults(true)}
           />
+          {showResults && isSearching && (
+            <div 
+              className="absolute w-full mt-1 bg-zinc-900 border border-zinc-800 rounded-md shadow-lg overflow-hidden z-50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {searchResults.length > 0 ? (
+                searchResults.map(stream => (
+                  <Link key={stream.id} href={`/stream/${stream.id}`}>
+                    <a className="flex items-center gap-2 p-2 hover:bg-zinc-800" onClick={() => setShowResults(false)}>
+                      <img src={stream.avatarUrl} alt={stream.streamer} className="w-8 h-8 rounded-full" />
+                      <div>
+                        <p className="font-medium">{stream.streamer}</p>
+                        <p className="text-sm text-zinc-400">{stream.game}</p>
+                      </div>
+                    </a>
+                  </Link>
+                ))
+              ) : (
+                <div className="p-2 text-zinc-400">No results found</div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
