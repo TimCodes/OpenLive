@@ -22,8 +22,8 @@ export function StreamPlayer({ stream }: StreamPlayerProps) {
       responsive: true,
       fluid: true,
       sources: [{
-        // Use a sample video for demonstration
-        src: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+        // Use a reliable video source for demonstration
+        src: 'https://vjs.zencdn.net/v/oceans.mp4',
         type: 'video/mp4'
       }],
       poster: stream.thumbnailUrl
