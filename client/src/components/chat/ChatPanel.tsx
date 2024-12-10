@@ -8,7 +8,10 @@ import { ChatMessage, mockEmotes } from '@/lib/mock-data';
 export function ChatPanel() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
+  const [showEmotes, setShowEmotes] = useState(false);
+  const [emoteFilter, setEmoteFilter] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const ws = createMockWebSocket();
@@ -17,6 +20,10 @@ export function ChatPanel() {
     });
     return () => ws.close();
   }, []);
+
+  const filteredEmotes = Object.entries(mockEmotes)
+    .filter(([name]) => name.toLowerCase().includes(emoteFilter.toLowerCase()))
+    .slice(0, 5);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -68,14 +75,47 @@ export function ChatPanel() {
       </ScrollArea>
 
       <div className="p-4 border-t border-zinc-800">
-        <div className="flex gap-2">
-          <Input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="Send a message"
-          />
-          <Button onClick={handleSend}>Chat</Button>
+        <div className="relative">
+          <div className="flex gap-2">
+            <Input
+              ref={inputRef}
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+                const lastWord = e.target.value.split(' ').pop() || '';
+                if (lastWord.startsWith(':')) {
+                  setEmoteFilter(lastWord.substring(1));
+                  setShowEmotes(true);
+                } else {
+                  setShowEmotes(false);
+                }
+              }}
+              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              placeholder="Send a message"
+            />
+            <Button onClick={handleSend}>Chat</Button>
+          </div>
+          
+          {showEmotes && filteredEmotes.length > 0 && (
+            <div className="absolute bottom-full mb-2 w-full bg-zinc-900 border border-zinc-800 rounded-md shadow-lg overflow-hidden">
+              {filteredEmotes.map(([name, emote]) => (
+                <button
+                  key={name}
+                  className="flex items-center gap-2 w-full p-2 hover:bg-zinc-800 text-left"
+                  onClick={() => {
+                    const words = input.split(' ');
+                    words[words.length - 1] = name;
+                    setInput(words.join(' ') + ' ');
+                    setShowEmotes(false);
+                    inputRef.current?.focus();
+                  }}
+                >
+                  <span className="text-2xl">{emote}</span>
+                  <span className="text-sm">{name}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
