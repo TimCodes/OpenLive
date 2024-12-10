@@ -22,41 +22,47 @@ export function StreamPlayer({ stream }: StreamPlayerProps) {
   const { isLoggedIn, followedStreams, subscribedStreams, toggleFollow, toggleSubscribe } = app;
 
   useEffect(() => {
-    if (!videoElementRef.current) return;
+    let player: any;
+    
+    // Small delay to ensure DOM is ready
+    const initializePlayer = setTimeout(() => {
+      if (!videoElementRef.current) return;
 
-    const videoElement = videoElementRef.current;
+      const videoElement = videoElementRef.current;
 
-    const player = videojs(videoElement, {
-      autoplay: true,
-      controls: true,
-      responsive: true,
-      fluid: true,
-      preload: 'auto',
-      html5: {
-        vhs: {
-          overrideNative: true
-        }
-      },
-      sources: [{
-        src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-        type: 'video/mp4'
-      }],
-      poster: stream.thumbnailUrl
-    });
+      player = videojs(videoElement, {
+        autoplay: true,
+        controls: true,
+        responsive: true,
+        fluid: true,
+        preload: 'auto',
+        html5: {
+          vhs: {
+            overrideNative: true
+          }
+        },
+        sources: [{
+          src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+          type: 'video/mp4'
+        }],
+        poster: stream.thumbnailUrl
+      });
 
-    playerRef.current = player;
+      playerRef.current = player;
 
-    player.ready(() => {
-      console.log('Player is ready');
-      setIsLoading(false);
-    });
+      player.ready(() => {
+        console.log('Player is ready');
+        setIsLoading(false);
+      });
 
-    player.on('error', () => {
-      setError('Failed to load video stream');
-      setIsLoading(false);
-    });
+      player.on('error', () => {
+        setError('Failed to load video stream');
+        setIsLoading(false);
+      });
+    }, 100);
 
     return () => {
+      clearTimeout(initializePlayer);
       if (playerRef.current) {
         playerRef.current.dispose();
         playerRef.current = null;
