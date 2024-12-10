@@ -8,36 +8,43 @@ interface StreamPlayerProps {
 }
 
 export function StreamPlayer({ stream }: StreamPlayerProps) {
-  const videoRef = useRef<HTMLDivElement>(null);
+  const videoElementRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<any>(null);
 
   useEffect(() => {
-    if (!videoRef.current) return;
+    if (!videoElementRef.current) return;
 
-    playerRef.current = videojs(videoRef.current, {
-      autoplay: true,
+    const videoElement = videoElementRef.current;
+
+    playerRef.current = videojs(videoElement, {
+      autoplay: false,
       controls: true,
       responsive: true,
       fluid: true,
       sources: [{
-        src: stream.thumbnailUrl,
+        // Use a sample video for demonstration
+        src: 'https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
         type: 'video/mp4'
-      }]
+      }],
+      poster: stream.thumbnailUrl
+    }, () => {
+      console.log('Player is ready');
     });
 
     return () => {
       if (playerRef.current) {
         playerRef.current.dispose();
+        playerRef.current = null;
       }
     };
-  }, [stream]);
+  }, [stream.id]); // Only reinitialize if stream ID changes
 
   return (
     <div className="w-full bg-black">
       <div data-vjs-player>
         <video
-          ref={videoRef as any}
-          className="video-js vjs-big-play-centered"
+          ref={videoElementRef}
+          className="video-js vjs-big-play-centered vjs-theme-twitch"
         />
       </div>
       <div className="p-4">
