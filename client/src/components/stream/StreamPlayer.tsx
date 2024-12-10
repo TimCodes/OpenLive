@@ -36,15 +36,44 @@ export function StreamPlayer({ stream }: StreamPlayerProps) {
         responsive: true,
         fluid: true,
         preload: 'auto',
+        controlBar: {
+          children: [
+            'playToggle',
+            'volumePanel',
+            'currentTimeDisplay',
+            'timeDivider',
+            'durationDisplay',
+            'progressControl',
+            'liveDisplay',
+            'remainingTimeDisplay',
+            'customControlSpacer',
+            'playbackRateMenuButton',
+            'qualitySelector',
+            'fullscreenToggle',
+          ],
+        },
         html5: {
           vhs: {
             overrideNative: true
           }
         },
-        sources: [{
-          src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-          type: 'video/mp4'
-        }],
+        sources: [
+          {
+            src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+            type: 'video/mp4',
+            label: '1080p',
+          },
+          {
+            src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+            type: 'video/mp4',
+            label: '720p',
+          },
+          {
+            src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+            type: 'video/mp4',
+            label: '480p',
+          }
+        ],
         poster: stream.thumbnailUrl
       });
 
@@ -159,22 +188,41 @@ export function StreamPlayer({ stream }: StreamPlayerProps) {
             )}
           </div>
         </div>
-        <div className="bg-zinc-800/50 p-4 rounded-lg">
-          <p className="text-sm text-zinc-300">
-            Stream started {new Date().toLocaleTimeString()}
-          </p>
-          <div className="flex gap-4 mt-2">
+        <div className="bg-zinc-800/50 p-4 rounded-lg space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-zinc-300 flex items-center gap-2">
+              <span className="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+              LIVE
+              <span className="text-zinc-400">·</span>
+              Started {new Date().toLocaleTimeString()}
+            </p>
+            <p className="text-sm text-zinc-300">
+              <span className="text-red-500">{stream.viewers.toLocaleString()}</span> viewers
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
-              <p className="text-xs text-zinc-400">Category</p>
-              <p className="text-sm">{stream.game}</p>
+              <p className="text-xs text-zinc-400 mb-1">Category</p>
+              <p className="text-sm font-medium hover:text-purple-400 cursor-pointer">{stream.game}</p>
             </div>
             <div>
-              <p className="text-xs text-zinc-400">Tags</p>
-              <div className="flex gap-1 mt-1">
-                <span className="text-xs bg-zinc-800 px-2 py-1 rounded">English</span>
-                <span className="text-xs bg-zinc-800 px-2 py-1 rounded">Gaming</span>
+              <p className="text-xs text-zinc-400 mb-1">Language</p>
+              <p className="text-sm font-medium">English</p>
+            </div>
+            <div className="col-span-2 sm:col-span-1">
+              <p className="text-xs text-zinc-400 mb-1">Tags</p>
+              <div className="flex flex-wrap gap-1">
+                <span className="text-xs bg-zinc-700/50 px-2 py-1 rounded hover:bg-zinc-700 cursor-pointer transition-colors">English</span>
+                <span className="text-xs bg-zinc-700/50 px-2 py-1 rounded hover:bg-zinc-700 cursor-pointer transition-colors">Gaming</span>
+                <span className="text-xs bg-zinc-700/50 px-2 py-1 rounded hover:bg-zinc-700 cursor-pointer transition-colors">{stream.game}</span>
               </div>
             </div>
+          </div>
+          <div className="text-sm text-zinc-300">
+            <p className="font-medium mb-1">About {stream.streamer}</p>
+            <p className="text-zinc-400">
+              Join {stream.streamer} for an exciting gaming session! Follow to never miss a stream.
+            </p>
           </div>
         </div>
       </div>
