@@ -5,6 +5,8 @@ import './VideoPlayer.css';
 import { Stream } from '@/lib/mock-data';
 import { Button } from '@/components/ui/button';
 import { Heart } from 'lucide-react';
+import { useApp } from '@/context/AppContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface StreamPlayerProps {
   stream: Stream;
@@ -15,6 +17,8 @@ export function StreamPlayer({ stream }: StreamPlayerProps) {
   const playerRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { isLoggedIn, followedStreams, subscribedStreams, toggleFollow, toggleSubscribe } = useApp();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!videoElementRef.current) return;
@@ -100,14 +104,52 @@ export function StreamPlayer({ stream }: StreamPlayerProps) {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="secondary" size="sm">
-              <Heart className="w-4 h-4 mr-2" />
-              Follow
-            </Button>
-            <Button variant="default" size="sm">
-              <Heart className="w-4 h-4 mr-2" fill="currentColor" />
-              Subscribe
-            </Button>
+            {stream && (
+              <>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    if (!isLoggedIn) {
+                      toast({
+                        title: "Login Required",
+                        description: "Please log in to follow channels",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    toggleFollow(stream.id);
+                  }}
+                >
+                  <Heart
+                    className="w-4 h-4 mr-2"
+                    fill={followedStreams.has(stream.id) ? "currentColor" : "none"}
+                  />
+                  {followedStreams.has(stream.id) ? "Following" : "Follow"}
+                </Button>
+                <Button
+                  variant={subscribedStreams.has(stream.id) ? "default" : "secondary"}
+                  size="sm"
+                  onClick={() => {
+                    if (!isLoggedIn) {
+                      toast({
+                        title: "Login Required",
+                        description: "Please log in to subscribe to channels",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    toggleSubscribe(stream.id);
+                  }}
+                >
+                  <Heart
+                    className="w-4 h-4 mr-2"
+                    fill={subscribedStreams.has(stream.id) ? "currentColor" : "none"}
+                  />
+                  {subscribedStreams.has(stream.id) ? "Subscribed" : "Subscribe"}
+                </Button>
+              </>
+            )}
           </div>
         </div>
         <div className="bg-zinc-800/50 p-4 rounded-lg">

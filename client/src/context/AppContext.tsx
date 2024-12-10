@@ -6,6 +6,10 @@ interface AppContextType {
   setCurrentStream: (stream: Stream | null) => void;
   isLoggedIn: boolean;
   setIsLoggedIn: (value: boolean) => void;
+  followedStreams: Set<string>;
+  subscribedStreams: Set<string>;
+  toggleFollow: (streamId: string) => void;
+  toggleSubscribe: (streamId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -13,6 +17,33 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [currentStream, setCurrentStream] = useState<Stream | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [followedStreams, setFollowedStreams] = useState<Set<string>>(new Set());
+  const [subscribedStreams, setSubscribedStreams] = useState<Set<string>>(new Set());
+
+  const toggleFollow = (streamId: string) => {
+    setFollowedStreams(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(streamId)) {
+        newSet.delete(streamId);
+      } else {
+        newSet.add(streamId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSubscribe = (streamId: string) => {
+    if (!isLoggedIn) return;
+    setSubscribedStreams(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(streamId)) {
+        newSet.delete(streamId);
+      } else {
+        newSet.add(streamId);
+      }
+      return newSet;
+    });
+  };
 
   return (
     <AppContext.Provider
@@ -20,7 +51,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         currentStream,
         setCurrentStream,
         isLoggedIn,
-        setIsLoggedIn
+        setIsLoggedIn,
+        followedStreams,
+        subscribedStreams,
+        toggleFollow,
+        toggleSubscribe
       }}
     >
       {children}
